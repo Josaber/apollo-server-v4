@@ -7,25 +7,21 @@ const dateScalar = new GraphQLScalarType({
   name: 'Date',
   description: 'Date custom scalar type',
   serialize (value) {
-    // converts the scalar's back-end representation to a JSON-compatible format so Apollo Server can include it in an operation response
     if (value instanceof Date) {
-      return value.getTime() // Convert outgoing Date to integer for JSON
+      return value.getTime()
     }
     throw Error('GraphQL Date Scalar serializer expected a `Date` object')
   },
   parseValue (value) {
-    // converts the scalar's JSON value to its back-end representation before it's added to a resolver's `args`
     if (typeof value === 'number') {
-      return new Date(value) // Convert incoming integer to Date
+      return new Date(value)
     }
     throw new Error('GraphQL Date Scalar parser expected a `number`')
   },
   parseLiteral (ast) {
     if (ast.kind === Kind.INT) {
-      // Convert hard-coded AST string to integer and then to Date
       return new Date(parseInt(ast.value, 10))
     }
-    // Invalid hard-coded value (not an integer)
     return null
   }
 })
@@ -76,8 +72,6 @@ const typeDefs = `#graphql
     books: [Book!]!
     search(contains: String!): [SearchBookResult!]
   }
-
-  # TODO: input & mutation & subscription
 `
 
 const books = [
@@ -116,10 +110,10 @@ const resolvers = {
   Date: dateScalar,
   JSON: GraphQLJSON,
   Author: {
-    books: (parent, args, contextValue, info) => books.filter(it => it.author.name === parent.name)
+    books: (parent) => books.filter(it => it.author.name === parent.name)
   },
   Book: {
-    __resolveType (book, contextValue, info) {
+    __resolveType (book) {
       if (book.color) {
         return 'Comic'
       }
@@ -130,7 +124,7 @@ const resolvers = {
     }
   },
   SearchBookResult: {
-    __resolveType (obj, contextValue, info) {
+    __resolveType (obj) {
       if (obj.name) {
         return 'Author'
       }
