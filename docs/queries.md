@@ -13,7 +13,7 @@ query SearchBookQuery {
         name
       }
       publishedAt
-      description
+      metadata
 
       ... on Comic {
         color
@@ -34,7 +34,7 @@ query SearchBookQuery {
       }
     }
     publishedAt
-    description
+    metadata
 
     ... on Comic {
       color
@@ -54,7 +54,7 @@ query SearchBookQuery {
       }
     }
     publishedAt
-    description
+    metadata
 
     ... on Comic {
       color

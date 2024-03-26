@@ -46,14 +46,14 @@ const typeDefs = `#graphql
     title: String!
     author: Author!
     publishedAt: Date!
-    description: JSON! @deprecated(reason: "Hard to resolve json string")
+    metadata: JSON! @deprecated(reason: "Hard to resolve json string")
   }
 
   type Novel implements Book {
     title: String!
     author: Author!
     publishedAt: Date!
-    description: JSON!
+    metadata: JSON!
     language: Language!
   }
 
@@ -61,7 +61,7 @@ const typeDefs = `#graphql
     title: String!
     author: Author!
     publishedAt: Date!
-    description: JSON!
+    metadata: JSON!
     color: Boolean!
   }
 
@@ -82,7 +82,7 @@ const books = [
       name: 'Kate Chopin'
     },
     publishedAt: new Date(),
-    description: { price: 123 },
+    metadata: { price: 123 },
     language: 'zh'
   },
   {
@@ -92,7 +92,7 @@ const books = [
       name: 'Paul Auster'
     },
     publishedAt: new Date(),
-    description: { price: 123 },
+    metadata: { price: 123 },
     color: true
   }
 ]
