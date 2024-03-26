@@ -1,0 +1,9 @@
+{
+  "name": "apollo-server-v4",
+  "version": "1.0.0",
+  "description": "Apollo Server Demo",
+  "main": "index.js",
+  "author": "Josaber <1174980997@qq.com>",
+  "license": "MIT",
+  "private": true
+}
