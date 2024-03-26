@@ -9,7 +9,9 @@
   "type": "module",
   "scripts": {
     "compile": "tsc",
-    "start": "yarn compile && node ./dist/index.js"
+    "start": "yarn compile && node ./dist/index.js",
+    "lint": "eslint src/**",
+    "lint:fix": "eslint --fix src/**"
   },
   "devDependencies": {
     "@types/node": "^20.11.30",
