@@ -6,6 +6,11 @@
   "author": "Josaber <1174980997@qq.com>",
   "license": "MIT",
   "private": true,
+  "type": "module",
+  "scripts": {
+    "compile": "tsc",
+    "start": "yarn compile && node ./dist/index.js"
+  },
   "devDependencies": {
     "@types/node": "^20.11.30",
     "typescript": "^5.4.3"
