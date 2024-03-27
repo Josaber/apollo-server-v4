@@ -1,8 +1,16 @@
+import { createServer } from 'http';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import { makeExecutableSchema } from '@graphql-tools/schema';
+import { WebSocketServer } from 'ws';
+import { useServer } from 'graphql-ws/lib/use/ws';
 import { ApolloServer } from '@apollo/server'
-import { startStandaloneServer } from '@apollo/server/standalone'
 import { GraphQLError, GraphQLFormattedError, GraphQLScalarType, Kind } from 'graphql'
 import GraphQLJSON from 'graphql-type-json'
 import { unwrapResolverError } from '@apollo/server/errors';
+import express from 'express';
+import cors from 'cors';
+import { expressMiddleware } from '@apollo/server/express4';
+import { PubSub } from 'graphql-subscriptions';
 
 const dateScalar = new GraphQLScalarType({
   name: 'Date',
@@ -91,6 +99,15 @@ const typeDefs = `#graphql
   type Mutation {
     updateBookAuthor(id: String!, author: String!): UpdateBookMutationResponse!
   }
+
+  type BookUpdateEvent {
+    book: Book
+    success: Boolean!
+  }
+
+  type Subscription {
+    bookUpdated: BookUpdateEvent!
+  }
 `
 
 interface Context {
@@ -121,6 +138,7 @@ let books = [
   }
 ]
 
+const pubsub = new PubSub();
 const resolvers = {
   Query: {
     book: (_, { id }: { id: string }) => books.find(it => it.id === id),
@@ -177,6 +195,12 @@ const resolvers = {
       const book = books.find(book => book.id === id)
       if (book) {
         books = [...books.filter(book => book.id !== id), { ...book, author: { ...book.author, name: author } }]
+        pubsub.publish('BOOK_UPDATED', {
+          bookUpdated: {
+            success: true,
+            book
+          },
+        });
         return {
           code: '200',
           success: true,
@@ -184,19 +208,63 @@ const resolvers = {
           book
         }
       }
+      pubsub.publish('BOOK_UPDATED', {
+        bookUpdated: {
+          success: false,
+          book
+        },
+      });
       return {
         code: '404',
         success: false,
         message: `Not found book ${id}`,
-        book: null
+        book
       }
+    }
+  },
+  Subscription: {
+    bookUpdated: {
+      subscribe: () => pubsub.asyncIterator(['BOOK_UPDATED'])
     }
   }
 }
 
+const app = express();
+const httpServer = createServer(app);
+
+const wsServer = new WebSocketServer({
+  server: httpServer,
+  path: '/subscriptions',
+});
+
+const schema = makeExecutableSchema({ typeDefs, resolvers });
+
+const getDynamicContext = async (ctx, msg, args) => {
+  console.log(ctx, msg, args);
+  if (ctx.connectionParams.authorization) {
+    const token = await getToken(ctx.connectionParams.authorization);
+    return { token };
+  }
+  return { token: null };
+};
+
+const serverCleanup = useServer({
+  schema,
+  onConnect: async (ctx) => {
+    console.log(ctx);
+    console.log('Connected!');
+  },
+  onDisconnect(ctx, code, reason) {
+    console.log(ctx, code, reason);
+    console.log('Disconnected!');
+  },
+  context: async (ctx, msg, args) => {
+    return getDynamicContext(ctx, msg, args);
+  },
+}, wsServer);
+
 const server = new ApolloServer<Context>({
-  typeDefs,
-  resolvers,
+  schema,
   formatError: (formattedError: GraphQLFormattedError, error: unknown) => {
     const unwrappedError = unwrapResolverError(error)
     if (unwrappedError instanceof Error) {
@@ -207,14 +275,30 @@ const server = new ApolloServer<Context>({
     }
     return formattedError
   },
-  includeStacktraceInErrorResponses: process.env.NODE_ENV !== 'production'
+  includeStacktraceInErrorResponses: process.env.NODE_ENV !== 'production',
+  plugins: [
+    // Proper shutdown for the HTTP server.
+    ApolloServerPluginDrainHttpServer({ httpServer }),
+
+    // Proper shutdown for the WebSocket server.
+    {
+      async serverWillStart() {
+        return {
+          async drainServer() {
+            await serverCleanup.dispose();
+          },
+        };
+      },
+    },
+  ],
 })
 
 const getToken = (authorization?: string): string => {
   return authorization?.toString() ?? ''
 }
 
-const { url } = await startStandaloneServer(server, {
+await server.start();
+app.use('/graphql', cors<cors.CorsRequest>(), express.json(), expressMiddleware(server, {
   context: async ({ req }) => {
     /*
     if(!req.headers.authorization) {
@@ -230,8 +314,10 @@ const { url } = await startStandaloneServer(server, {
       token: await getToken(req.headers.authorization),
       dataSources: {}
     }
-  },
-  listen: { port: 4000 }
-})
+  }
+}));
 
-console.log(`🚀  Server ready at: ${url}`)
+const PORT = 4000;
+httpServer.listen(PORT, () => {
+  console.log(`Server is now running on http://localhost:${PORT}/graphql`);
+});
