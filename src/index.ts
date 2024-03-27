@@ -1,16 +1,18 @@
-import { createServer } from 'http';
+import { ApolloServer } from '@apollo/server';
+import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import { createServer } from 'http';
+import express from 'express';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { WebSocketServer } from 'ws';
 import { useServer } from 'graphql-ws/lib/use/ws';
-import { ApolloServer } from '@apollo/server'
+import cors from 'cors';
 import { GraphQLError, GraphQLFormattedError, GraphQLScalarType, Kind } from 'graphql'
 import GraphQLJSON from 'graphql-type-json'
 import { unwrapResolverError } from '@apollo/server/errors';
-import express from 'express';
-import cors from 'cors';
-import { expressMiddleware } from '@apollo/server/express4';
 import { PubSub } from 'graphql-subscriptions';
+import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
+import { ApolloServerPluginLandingPageDisabled } from '@apollo/server/plugin/disabled';
 
 const dateScalar = new GraphQLScalarType({
   name: 'Date',
@@ -229,6 +231,8 @@ const resolvers = {
   }
 }
 
+const schema = makeExecutableSchema({ typeDefs, resolvers });
+
 const app = express();
 const httpServer = createServer(app);
 
@@ -236,8 +240,6 @@ const wsServer = new WebSocketServer({
   server: httpServer,
   path: '/subscriptions',
 });
-
-const schema = makeExecutableSchema({ typeDefs, resolvers });
 
 const getDynamicContext = async (ctx) => {
   if (ctx.connectionParams.authorization) {
@@ -274,10 +276,11 @@ const server = new ApolloServer<Context>({
   },
   includeStacktraceInErrorResponses: process.env.NODE_ENV !== 'production',
   plugins: [
-    // Proper shutdown for the HTTP server.
+    process.env.NODE_ENV === 'production'
+      ? ApolloServerPluginLandingPageDisabled()
+      // ApolloServerPluginLandingPageProductionDefault()
+      : ApolloServerPluginLandingPageLocalDefault({ embed: true }),
     ApolloServerPluginDrainHttpServer({ httpServer }),
-
-    // Proper shutdown for the WebSocket server.
     {
       async serverWillStart() {
         return {
