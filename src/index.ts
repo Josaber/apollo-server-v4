@@ -74,6 +74,23 @@ const typeDefs = `#graphql
     privateBooks: [Book!]!
     search(contains: String!): [SearchBookResult!]
   }
+
+  interface MutationResponse {
+    code: String!
+    success: Boolean!
+    message: String!
+  }
+
+  type UpdateBookMutationResponse implements MutationResponse {
+    code: String!
+    success: Boolean!
+    message: String!
+    book: Book
+  }
+
+  type Mutation {
+    updateBookAuthor(id: String!, author: String!): UpdateBookMutationResponse!
+  }
 `
 
 interface Context {
@@ -81,7 +98,7 @@ interface Context {
   dataSources: unknown;
 }
 
-const books = [
+let books = [
   {
     id: 'book-1',
     title: 'The Awakening',
@@ -153,6 +170,26 @@ const resolvers = {
         return 'Novel'
       }
       return null
+    }
+  },
+  Mutation: {
+    updateBookAuthor: (_, { id, author }: { id: string; author: string }) => {
+      const book = books.find(book => book.id === id)
+      if (book) {
+        books = [...books.filter(book => book.id !== id), { ...book, author: { ...book.author, name: author } }]
+        return {
+          code: '200',
+          success: true,
+          message: "Successfully update book author",
+          book
+        }
+      }
+      return {
+        code: '404',
+        success: false,
+        message: `Not found book ${id}`,
+        book: null
+      }
     }
   }
 }
