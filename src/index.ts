@@ -1,24 +1,24 @@
 import { ApolloServer } from '@apollo/server'
 import { startStandaloneServer } from '@apollo/server/standalone'
-import { GraphQLScalarType, Kind } from 'graphql'
+import { GraphQLError, GraphQLScalarType, Kind } from 'graphql'
 import GraphQLJSON from 'graphql-type-json'
 
 const dateScalar = new GraphQLScalarType({
   name: 'Date',
   description: 'Date custom scalar type',
-  serialize (value) {
+  serialize(value) {
     if (value instanceof Date) {
       return value.getTime()
     }
     throw Error('GraphQL Date Scalar serializer expected a `Date` object')
   },
-  parseValue (value) {
+  parseValue(value) {
     if (typeof value === 'number') {
       return new Date(value)
     }
     throw new Error('GraphQL Date Scalar parser expected a `number`')
   },
-  parseLiteral (ast) {
+  parseLiteral(ast) {
     if (ast.kind === Kind.INT) {
       return new Date(parseInt(ast.value, 10))
     }
@@ -70,9 +70,15 @@ const typeDefs = `#graphql
   type Query {
     book(id: String!): Book
     books: [Book!]!
+    privateBooks: [Book!]!
     search(contains: String!): [SearchBookResult!]
   }
 `
+
+interface Context {
+  token: string;
+  dataSources: unknown;
+}
 
 const books = [
   {
@@ -99,9 +105,20 @@ const books = [
 
 const resolvers = {
   Query: {
-    book: (_, { id }) => books.find(it => it.id === id),
+    book: (_, { id }: { id: string }) => books.find(it => it.id === id),
     books: () => books,
-    search: (_, { contains }) => books.filter(it => it.title.includes(contains) || it.author.name.includes(contains))
+    privateBooks: (_, __, contextValue: Context) => {
+      if (!contextValue.token) {
+        throw new GraphQLError('Unauthorized!', {
+          extensions: {
+            code: 'Unauthorized',
+            http: { status: 401 }
+          }
+        })
+      }
+      return books
+    },
+    search: (_, { contains }: { contains: string }) => books.filter(it => it.title.includes(contains) || it.author.name.includes(contains))
   },
   Language: {
     ZH: 'zh',
@@ -113,7 +130,7 @@ const resolvers = {
     books: (parent) => books.filter(it => it.author.name === parent.name)
   },
   Book: {
-    __resolveType (book) {
+    __resolveType(book) {
       if (book.color) {
         return 'Comic'
       }
@@ -124,7 +141,7 @@ const resolvers = {
     }
   },
   SearchBookResult: {
-    __resolveType (obj) {
+    __resolveType(obj) {
       if (obj.name) {
         return 'Author'
       }
@@ -139,12 +156,32 @@ const resolvers = {
   }
 }
 
-const server = new ApolloServer({
+const server = new ApolloServer<Context>({
   typeDefs,
   resolvers
 })
 
+const getToken = (authorization?: string): string => {
+  return authorization?.toString() ?? ''
+}
+
 const { url } = await startStandaloneServer(server, {
+  context: async ({ req }) => {
+    /*
+    if(!req.headers.authorization) {
+      throw new GraphQLError('Unauthorized!', {
+        extensions: {
+          code: 'Unauthorized',
+          http: { status: 401 }
+        }
+      })
+    }
+    */
+    return {
+      token: await getToken(req.headers.authorization),
+      dataSources: {}
+    }
+  },
   listen: { port: 4000 }
 })
 
