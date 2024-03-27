@@ -1,7 +1,8 @@
 import { ApolloServer } from '@apollo/server'
 import { startStandaloneServer } from '@apollo/server/standalone'
-import { GraphQLError, GraphQLScalarType, Kind } from 'graphql'
+import { GraphQLError, GraphQLFormattedError, GraphQLScalarType, Kind } from 'graphql'
 import GraphQLJSON from 'graphql-type-json'
+import { unwrapResolverError } from '@apollo/server/errors';
 
 const dateScalar = new GraphQLScalarType({
   name: 'Date',
@@ -158,7 +159,18 @@ const resolvers = {
 
 const server = new ApolloServer<Context>({
   typeDefs,
-  resolvers
+  resolvers,
+  formatError: (formattedError: GraphQLFormattedError, error: unknown) => {
+    const unwrappedError = unwrapResolverError(error)
+    if (unwrappedError instanceof Error) {
+      return { message: `Internal Server Error with ${unwrappedError.message}` }
+    }
+    if (error instanceof Error) {
+      return { message: `Internal Server Error with ${error.message}` }
+    }
+    return formattedError
+  },
+  includeStacktraceInErrorResponses: process.env.NODE_ENV !== 'production'
 })
 
 const getToken = (authorization?: string): string => {
