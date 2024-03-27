@@ -1,11 +1,11 @@
-import { ApolloServer } from '@apollo/server';
-import { expressMiddleware } from '@apollo/server/express4';
-import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import { createServer } from 'http';
-import express from 'express';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { WebSocketServer } from 'ws';
 import { useServer } from 'graphql-ws/lib/use/ws';
+import { ApolloServer } from '@apollo/server';
+import { expressMiddleware } from '@apollo/server/express4';
+import express from 'express';
 import cors from 'cors';
 import { GraphQLError, GraphQLFormattedError, GraphQLScalarType, Kind } from 'graphql'
 import GraphQLJSON from 'graphql-type-json'
@@ -238,7 +238,7 @@ const httpServer = createServer(app);
 
 const wsServer = new WebSocketServer({
   server: httpServer,
-  path: '/subscriptions',
+  path: '/graphql',
 });
 
 const getDynamicContext = async (ctx) => {
