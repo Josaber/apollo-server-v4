@@ -239,8 +239,7 @@ const wsServer = new WebSocketServer({
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 
-const getDynamicContext = async (ctx, msg, args) => {
-  console.log(ctx, msg, args);
+const getDynamicContext = async (ctx) => {
   if (ctx.connectionParams.authorization) {
     const token = await getToken(ctx.connectionParams.authorization);
     return { token };
@@ -250,16 +249,14 @@ const getDynamicContext = async (ctx, msg, args) => {
 
 const serverCleanup = useServer({
   schema,
-  onConnect: async (ctx) => {
-    console.log(ctx);
+  onConnect: async () => {
     console.log('Connected!');
   },
-  onDisconnect(ctx, code, reason) {
-    console.log(ctx, code, reason);
+  onDisconnect() {
     console.log('Disconnected!');
   },
-  context: async (ctx, msg, args) => {
-    return getDynamicContext(ctx, msg, args);
+  context: async (ctx) => {
+    return getDynamicContext(ctx);
   },
 }, wsServer);
 
@@ -319,5 +316,5 @@ app.use('/graphql', cors<cors.CorsRequest>(), express.json(), expressMiddleware(
 
 const PORT = 4000;
 httpServer.listen(PORT, () => {
-  console.log(`Server is now running on http://localhost:${PORT}/graphql`);
+  console.log(`🚀  Server ready at: http://localhost:${PORT}/graphql`);
 });
