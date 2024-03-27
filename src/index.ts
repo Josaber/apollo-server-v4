@@ -13,6 +13,7 @@ import { typeDefs } from './typeDefs.js';
 import { resolvers } from './resolvers.js';
 import { Context } from './types.js';
 import { formatError, getDynamicContext, getToken } from './utils.js';
+import { BookApi } from './BookApi.js';
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 const app = express();
@@ -61,9 +62,12 @@ const server = new ApolloServer<Context>({
 await server.start();
 app.use('/graphql', cors<cors.CorsRequest>(), express.json(), expressMiddleware(server, {
   context: async ({ req }) => {
+    const token = await getToken(req.headers.authorization)
     return {
-      token: await getToken(req.headers.authorization),
-      dataSources: {}
+      token,
+      dataSources: {
+        bookApi: new BookApi(token)
+      }
     }
   }
 }));

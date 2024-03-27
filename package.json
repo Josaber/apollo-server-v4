@@ -16,10 +16,12 @@
   "devDependencies": {
     "@types/node": "^20.11.30",
     "eslint": "^8.0.1",
+    "json-server": "^1.0.0-alpha.23",
     "typescript": "^5.4.3",
     "typescript-eslint": "^7.4.0"
   },
   "dependencies": {
+    "@apollo/datasource-rest": "^6.2.2",
     "@apollo/server": "^4.10.2",
     "@graphql-tools/schema": "^10.0.3",
     "cors": "^2.8.5",
