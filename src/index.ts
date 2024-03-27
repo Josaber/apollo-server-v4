@@ -91,6 +91,11 @@ const typeDefs = `#graphql
     message: String!
   }
 
+  input UpdateBookRequest {
+    title: String
+    author: String
+  }
+
   type UpdateBookMutationResponse implements MutationResponse {
     code: String!
     success: Boolean!
@@ -99,7 +104,7 @@ const typeDefs = `#graphql
   }
 
   type Mutation {
-    updateBookAuthor(id: String!, author: String!): UpdateBookMutationResponse!
+    updateBookAuthor(id: String!, updateBookRequest: UpdateBookRequest!): UpdateBookMutationResponse!
   }
 
   type BookUpdateEvent {
@@ -193,10 +198,10 @@ const resolvers = {
     }
   },
   Mutation: {
-    updateBookAuthor: (_, { id, author }: { id: string; author: string }) => {
+    updateBookAuthor: (_, { id, updateBookRequest }: { id: string; updateBookRequest: { title: string; author: string } }) => {
       const book = books.find(book => book.id === id)
       if (book) {
-        books = [...books.filter(book => book.id !== id), { ...book, author: { ...book.author, name: author } }]
+        books = [...books.filter(book => book.id !== id), { ...book, title: updateBookRequest.title ?? book.title, author: { ...book.author, name: updateBookRequest.author ?? book.author.name } }]
         pubsub.publish('BOOK_UPDATED', {
           bookUpdated: {
             success: true,
