@@ -25,10 +25,10 @@ const getPrivateBooks = async (_: unknown, __: unknown, contextValue: Context): 
   return await contextValue.dataSources.bookApi.getBooks()
 }
 
-const search = async (_: unknown, { contains }: { contains: string }, contextValue: Context): Promise<Book[]> => {
+const search = async (_: unknown, { contains }: { contains: string }, contextValue: Context): Promise<(Book | Author)[]> => {
   const books = await contextValue.dataSources.bookApi.getBooks()
-  // TODO: author search
-  return books.filter(it => it.title.includes(contains))
+  const authors = await contextValue.dataSources.authorApi.getAuthors()
+  return [...books.filter(it => it.title.includes(contains)), ...authors.filter(it => it.name.includes(contains))]
 }
 
 const getAuthorName = async (parent: Author, _: unknown, contextValue: Context): Promise<string> => {
