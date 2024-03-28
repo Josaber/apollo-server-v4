@@ -8,5 +8,6 @@
 
 - https://eslint.org/
 - https://typescript-eslint.io/
+- https://github.com/dimaMachina/graphql-eslint
 - https://spec.graphql.org/
 - https://www.apollographql.com/docs/apollo-server/getting-started

@@ -1,6 +1,5 @@
 import { createServer } from 'http';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
-import { makeExecutableSchema } from '@graphql-tools/schema';
 import { WebSocketServer } from 'ws';
 import { useServer } from 'graphql-ws/lib/use/ws';
 import { ApolloServer } from '@apollo/server';
@@ -9,15 +8,13 @@ import express from 'express';
 import cors from 'cors';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { ApolloServerPluginLandingPageDisabled } from '@apollo/server/plugin/disabled';
-import { typeDefs } from './typeDefs.js';
-import { resolvers } from './resolvers.js';
-import { Context } from './types.js';
-import { formatError, getDynamicContext, getToken, isProductionEnv } from './utils.js';
-import { BookApi } from './BookApi.js';
-import { AuthorApi } from './AuthorApi.js';
+import { Context } from './graphql/book/types.js';
+import { formatError, getDynamicContext, getToken, isProductionEnv } from './graphql/utils.js';
+import { BookApi } from './graphql/book/BookApi.js';
+import { AuthorApi } from './graphql/book/AuthorApi.js';
 import logger from './logger.js';
+import { schema } from './graphql/index.js';
 
-const schema = makeExecutableSchema({ typeDefs, resolvers });
 const app = express();
 const httpServer = createServer(app);
 

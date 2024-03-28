@@ -1,5 +1,5 @@
 import { Author } from './types';
-import { BaseDataSource } from './BaseDataSource.js';
+import { BaseDataSource } from '../BaseDataSource.js';
 import { Logger } from "winston"
 
 export class AuthorApi extends BaseDataSource {

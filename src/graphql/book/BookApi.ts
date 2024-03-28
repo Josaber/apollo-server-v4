@@ -1,5 +1,5 @@
 import { Book, UpdateBookRequest } from './types';
-import { BaseDataSource } from './BaseDataSource.js';
+import { BaseDataSource } from '../BaseDataSource.js';
 import { Logger } from "winston"
 
 export class BookApi extends BaseDataSource {

@@ -1,5 +1,5 @@
 import winston from "winston"
-import { isProductionEnv } from "./utils.js";
+import { isProductionEnv } from "./graphql/utils.js";
 
 const logger = winston.createLogger({
   level: 'info',
