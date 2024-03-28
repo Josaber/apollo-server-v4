@@ -1,23 +1,10 @@
-import { RESTDataSource, AugmentedRequest } from '@apollo/datasource-rest';
 import { Author } from './types';
+import { BaseDataSource } from './BaseDataSource.js';
+import { Logger } from "winston"
 
-export class AuthorApi extends RESTDataSource {
-  override baseURL = 'http://localhost:5000/';
-  private token?: string;
-
-  constructor(token?: string) {
-    super();
-    this.token = token;
-  }
-
-  protected override requestDeduplicationPolicyFor() {
-    return { policy: 'do-not-deduplicate' } as const;
-  }
-
-  override willSendRequest(_path: string, request: AugmentedRequest) {
-    if (this.token) {
-      request.headers['authorization'] = this.token;
-    }
+export class AuthorApi extends BaseDataSource {
+  constructor(logger: Logger, token?: string) {
+    super(logger, token);
   }
 
   async getAuthors(): Promise<Author[]> {

@@ -1,23 +1,10 @@
-import { RESTDataSource, AugmentedRequest } from '@apollo/datasource-rest';
 import { Book, UpdateBookRequest } from './types';
+import { BaseDataSource } from './BaseDataSource.js';
+import { Logger } from "winston"
 
-export class BookApi extends RESTDataSource {
-  override baseURL = 'http://localhost:5000/';
-  private token?: string;
-
-  constructor(token?: string) {
-    super();
-    this.token = token;
-  }
-
-  protected override requestDeduplicationPolicyFor() {
-    return { policy: 'do-not-deduplicate' } as const;
-  }
-
-  override willSendRequest(_path: string, request: AugmentedRequest) {
-    if (this.token) {
-      request.headers['authorization'] = this.token;
-    }
+export class BookApi extends BaseDataSource {
+  constructor(logger: Logger, token?: string) {
+    super(logger, token);
   }
 
   async getBooks(authorId?: string): Promise<Book[]> {
@@ -34,7 +21,7 @@ export class BookApi extends RESTDataSource {
 
   async updateBook(id: string, updateBookRequest: UpdateBookRequest): Promise<Book> {
     const book = this.get<Book>(`books/${encodeURIComponent(id)}`);
-    this.put(`books/${encodeURIComponent(id)}`, {
+    this.patch(`books/${encodeURIComponent(id)}`, {
       body: updateBookRequest
     });
     return book

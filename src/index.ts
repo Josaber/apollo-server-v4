@@ -12,9 +12,10 @@ import { ApolloServerPluginLandingPageDisabled } from '@apollo/server/plugin/dis
 import { typeDefs } from './typeDefs.js';
 import { resolvers } from './resolvers.js';
 import { Context } from './types.js';
-import { formatError, getDynamicContext, getToken } from './utils.js';
+import { formatError, getDynamicContext, getToken, isProductionEnv } from './utils.js';
 import { BookApi } from './BookApi.js';
 import { AuthorApi } from './AuthorApi.js';
+import logger from './logger.js';
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 const app = express();
@@ -41,9 +42,9 @@ const serverCleanup = useServer({
 const server = new ApolloServer<Context>({
   schema,
   formatError,
-  includeStacktraceInErrorResponses: process.env.NODE_ENV !== 'production',
+  includeStacktraceInErrorResponses: !isProductionEnv(),
   plugins: [
-    process.env.NODE_ENV === 'production'
+    isProductionEnv()
       ? ApolloServerPluginLandingPageDisabled()
       // ApolloServerPluginLandingPageProductionDefault()
       : ApolloServerPluginLandingPageLocalDefault({ embed: true }),
@@ -67,8 +68,8 @@ app.use('/graphql', cors<cors.CorsRequest>(), express.json(), expressMiddleware(
     return {
       token,
       dataSources: {
-        bookApi: new BookApi(token),
-        authorApi: new AuthorApi(token)
+        bookApi: new BookApi(logger, token),
+        authorApi: new AuthorApi(logger, token)
       }
     }
   }
