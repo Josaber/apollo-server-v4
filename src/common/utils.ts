@@ -1,7 +1,8 @@
 import { GraphQLFormattedError } from "graphql"
 import { unwrapResolverError } from '@apollo/server/errors';
+import { APP_ENV } from "./constants.js";
 
-export const isProductionEnv = () => process.env.NODE_ENV === "production"
+export const isProductionEnv = () => APP_ENV === "production"
 
 export const formatError = (formattedError: GraphQLFormattedError, error: unknown) => {
   const unwrappedError = unwrapResolverError(error)

@@ -1,8 +1,9 @@
 import { RESTDataSource, AugmentedRequest } from '@apollo/datasource-rest';
 import { Logger } from "winston"
+import { settings } from '../settings/index.js';
 
 export class BaseDataSource extends RESTDataSource {
-  override baseURL = 'http://localhost:5000/';
+  override baseURL = settings.apiHost;
   override logger: Logger;
   protected token?: string;
 

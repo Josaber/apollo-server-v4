@@ -14,6 +14,7 @@ import { BookApi } from './graphql/book/BookApi.js';
 import { AuthorApi } from './graphql/book/AuthorApi.js';
 import logger from './common/logger.js';
 import { schema } from './graphql/index.js';
+import { PORT } from './common/constants.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -72,7 +73,6 @@ app.use('/graphql', cors<cors.CorsRequest>(), express.json(), expressMiddleware(
   }
 }));
 
-const PORT = 4000;
 httpServer.listen(PORT, () => {
   logger.info(`🚀  Server ready at: http://localhost:${PORT}/graphql`);
 });
