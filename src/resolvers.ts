@@ -1,6 +1,6 @@
 import { GraphQLError, GraphQLScalarType, Kind } from "graphql";
 import { PubSub } from "graphql-subscriptions";
-import { Context } from "./types";
+import { Author, Book, Context, UpdateBookRequest } from "./types";
 import GraphQLJSON from "graphql-type-json";
 
 const dateScalar = new GraphQLScalarType({
@@ -26,35 +26,18 @@ const dateScalar = new GraphQLScalarType({
   }
 })
 
-let books = [
-  {
-    id: 'book-1',
-    title: 'The Awakening',
-    author: {
-      name: 'Kate Chopin'
-    },
-    publishedAt: new Date(),
-    metadata: { price: 123 },
-    language: 'zh'
-  },
-  {
-    id: 'book-2',
-    title: 'City of Glass',
-    author: {
-      name: 'Paul Auster'
-    },
-    publishedAt: new Date(),
-    metadata: { price: 123 },
-    color: true
-  }
-]
-
 const pubsub = new PubSub();
 export const resolvers = {
   Query: {
-    book: (_, { id }: { id: string }) => books.find(it => it.id === id),
-    books: () => books,
-    privateBooks: (_, __, contextValue: Context) => {
+    book: async (_: unknown, { id }: { id: string }, contextValue: Context): Promise<Book> => {
+      const book = await contextValue.dataSources.bookApi.getBook(id)
+      return {
+        ...book,
+        author: { ...book.author, id: book.authorId }
+      }
+    },
+    books: async (_: unknown, __: unknown, contextValue: Context): Promise<Book[]> => await contextValue.dataSources.bookApi.getBooks(),
+    privateBooks: async (_: unknown, __: unknown, contextValue: Context): Promise<Book[]> => {
       if (!contextValue.token) {
         throw new GraphQLError('Unauthorized!', {
           extensions: {
@@ -63,9 +46,13 @@ export const resolvers = {
           }
         })
       }
-      return books
+      return await contextValue.dataSources.bookApi.getBooks()
     },
-    search: (_, { contains }: { contains: string }) => books.filter(it => it.title.includes(contains) || it.author.name.includes(contains))
+    search: async (_: unknown, { contains }: { contains: string }, contextValue: Context): Promise<Book[]> => {
+      const books = await contextValue.dataSources.bookApi.getBooks()
+      // TODO: author search
+      return books.filter(it => it.title.includes(contains))
+    }
   },
   Language: {
     ZH: 'zh',
@@ -74,10 +61,15 @@ export const resolvers = {
   Date: dateScalar,
   JSON: GraphQLJSON,
   Author: {
-    books: (parent) => books.filter(it => it.author.name === parent.name)
+    name: async (parent: Author, _: unknown, contextValue: Context): Promise<string> => {
+      return (await contextValue.dataSources.authorApi.getAuthor(parent.id)).name
+    },
+    books: async (parent: Author, _: unknown, contextValue: Context): Promise<Book[]> => {
+      return await contextValue.dataSources.bookApi.getBooks(parent.id)
+    }
   },
   Book: {
-    __resolveType(book) {
+    __resolveType(book: Book) {
       if (book.color) {
         return 'Comic'
       }
@@ -88,7 +80,7 @@ export const resolvers = {
     }
   },
   SearchBookResult: {
-    __resolveType(obj) {
+    __resolveType(obj: Book & Author) {
       if (obj.name) {
         return 'Author'
       }
@@ -102,33 +94,18 @@ export const resolvers = {
     }
   },
   Mutation: {
-    updateBookAuthor: (_, { id, updateBookRequest }: { id: string; updateBookRequest: { title: string; author: string } }) => {
-      const book = books.find(book => book.id === id)
-      if (book) {
-        books = [...books.filter(book => book.id !== id), { ...book, title: updateBookRequest.title ?? book.title, author: { ...book.author, name: updateBookRequest.author ?? book.author.name } }]
-        pubsub.publish('BOOK_UPDATED', {
-          bookUpdated: {
-            success: true,
-            book
-          },
-        });
-        return {
-          code: '200',
-          success: true,
-          message: "Successfully update book author",
-          book
-        }
-      }
+    updateBookAuthor: async (_: unknown, { id, updateBookRequest }: { id: string; updateBookRequest: UpdateBookRequest }, contextValue: Context) => {
+      const book = await contextValue.dataSources.bookApi.updateBook(id, updateBookRequest)
       pubsub.publish('BOOK_UPDATED', {
         bookUpdated: {
-          success: false,
+          success: true,
           book
         },
       });
       return {
-        code: '404',
-        success: false,
-        message: `Not found book ${id}`,
+        code: '200',
+        success: true,
+        message: `Successfully updated book ${id}`,
         book
       }
     }

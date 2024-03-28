@@ -1,5 +1,5 @@
 import { RESTDataSource, AugmentedRequest } from '@apollo/datasource-rest';
-import { Book } from './types';
+import { Book, UpdateBookRequest } from './types';
 
 export class BookApi extends RESTDataSource {
   override baseURL = 'http://localhost:5000/';
@@ -20,11 +20,23 @@ export class BookApi extends RESTDataSource {
     }
   }
 
-  async getBooks(): Promise<Book[]> {
-    return this.get<Book[]>('books');
+  async getBooks(authorId?: string): Promise<Book[]> {
+    return this.get<Book[]>('books', {
+      params: {
+        authorId,
+      },
+    });
   }
 
   async getBook(id: string): Promise<Book> {
     return this.get<Book>(`books/${encodeURIComponent(id)}`);
+  }
+
+  async updateBook(id: string, updateBookRequest: UpdateBookRequest): Promise<Book> {
+    const book = this.get<Book>(`books/${encodeURIComponent(id)}`);
+    this.put(`books/${encodeURIComponent(id)}`, {
+      body: updateBookRequest
+    });
+    return book
   }
 }

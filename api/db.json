@@ -1,0 +1,54 @@
+{
+  "books": [
+    {
+      "id": "1",
+      "title": "The Book 1",
+      "authorId": "1",
+      "publishedAt": "2024-03-28T00:00:00Z",
+      "language": "zh",
+      "metadata": {
+        "price": 28.00
+      }
+    },
+    {
+      "id": "2",
+      "title": "The Book 2",
+      "authorId": "2",
+      "publishedAt": "2024-03-28T00:00:00Z",
+      "language": "zh",
+      "metadata": {
+        "price": 38.00
+      }
+    },
+    {
+      "id": "3",
+      "title": "The Book 3",
+      "authorId": "1",
+      "publishedAt": "2024-03-28T00:00:00Z",
+      "language": "zh",
+      "metadata": {
+        "price": 48.00
+      }
+    },
+    {
+      "id": "4",
+      "title": "The Book 4",
+      "authorId": "2",
+      "publishedAt": "2024-03-28T00:00:00Z",
+      "language": "zh",
+      "metadata": {
+        "price": 58.00
+      }
+    }
+  ],
+  "authors": [
+    {
+      "id": "1",
+      "name": "Author 1"
+    },
+    {
+      "id": "2",
+      "name": "Author 2"
+    }
+  ]
+}

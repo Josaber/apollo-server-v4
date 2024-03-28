@@ -14,6 +14,7 @@ import { resolvers } from './resolvers.js';
 import { Context } from './types.js';
 import { formatError, getDynamicContext, getToken } from './utils.js';
 import { BookApi } from './BookApi.js';
+import { AuthorApi } from './AuthorApi.js';
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 const app = express();
@@ -66,7 +67,8 @@ app.use('/graphql', cors<cors.CorsRequest>(), express.json(), expressMiddleware(
     return {
       token,
       dataSources: {
-        bookApi: new BookApi(token)
+        bookApi: new BookApi(token),
+        authorApi: new AuthorApi(token)
       }
     }
   }

@@ -15,6 +15,7 @@ type Author {
 }
 
 interface Book {
+  id: String!
   title: String!
   author: Author!
   publishedAt: Date!
@@ -22,6 +23,7 @@ interface Book {
 }
 
 type Novel implements Book {
+  id: String!
   title: String!
   author: Author!
   publishedAt: Date!
@@ -30,6 +32,7 @@ type Novel implements Book {
 }
 
 type Comic implements Book {
+  id: String!
   title: String!
   author: Author!
   publishedAt: Date!
@@ -54,7 +57,7 @@ interface MutationResponse {
 
 input UpdateBookRequest {
   title: String
-  author: String
+  authorId: String
 }
 
 type UpdateBookMutationResponse implements MutationResponse {

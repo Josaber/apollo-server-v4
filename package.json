@@ -10,6 +10,7 @@
   "scripts": {
     "compile": "tsc",
     "start": "yarn compile && node ./dist/index.js",
+    "api": "json-server -p 5000 api/db.json",
     "lint": "eslint src/**",
     "lint:fix": "yarn lint --fix"
   },
