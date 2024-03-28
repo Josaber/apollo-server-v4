@@ -9,10 +9,10 @@ import cors from 'cors';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { ApolloServerPluginLandingPageDisabled } from '@apollo/server/plugin/disabled';
 import { Context } from './graphql/book/types.js';
-import { formatError, getDynamicContext, getToken, isProductionEnv } from './graphql/utils.js';
+import { formatError, getDynamicContext, getToken, isProductionEnv } from './common/utils.js';
 import { BookApi } from './graphql/book/BookApi.js';
 import { AuthorApi } from './graphql/book/AuthorApi.js';
-import logger from './logger.js';
+import logger from './common/logger.js';
 import { schema } from './graphql/index.js';
 
 const app = express();
@@ -26,10 +26,10 @@ const wsServer = new WebSocketServer({
 const serverCleanup = useServer({
   schema,
   onConnect: async () => {
-    console.log('Connected!');
+    logger.debug('Connected!');
   },
   onDisconnect() {
-    console.log('Disconnected!');
+    logger.debug('Disconnected!');
   },
   context: async (ctx) => {
     return getDynamicContext(ctx);
@@ -74,5 +74,5 @@ app.use('/graphql', cors<cors.CorsRequest>(), express.json(), expressMiddleware(
 
 const PORT = 4000;
 httpServer.listen(PORT, () => {
-  console.log(`🚀  Server ready at: http://localhost:${PORT}/graphql`);
+  logger.info(`🚀  Server ready at: http://localhost:${PORT}/graphql`);
 });

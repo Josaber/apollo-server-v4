@@ -25,7 +25,7 @@
       "title": "The Book 3",
       "authorId": "1",
       "publishedAt": "2024-03-28T00:00:00Z",
-      "language": "zh",
+      "color": false,
       "metadata": {
         "price": 48.00
       }
@@ -35,7 +35,7 @@
       "title": "The Book 4",
       "authorId": "2",
       "publishedAt": "2024-03-28T00:00:00Z",
-      "language": "zh",
+      "color": true,
       "metadata": {
         "price": 58.00
       }
