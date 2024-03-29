@@ -75,6 +75,10 @@ app.use('/graphql', cors<cors.CorsRequest>(), express.json(), expressMiddleware(
   }
 }))
 
+app.get('/liveness', (_, res) => {
+  res.status(200).json({ status: 'UP' })
+})
+
 httpServer.listen(PORT, () => {
   logger.info(`🚀  Server ready at: http://localhost:${PORT}/graphql`)
 })
