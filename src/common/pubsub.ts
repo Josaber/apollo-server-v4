@@ -1,18 +1,13 @@
 import { PubSub } from 'graphql-subscriptions'
 import { RedisPubSub } from 'graphql-redis-subscriptions'
 import Redis from 'ioredis'
-import { isLocalEnv } from './utils'
-
-const option = {
-  host: 'localhost',
-  port: 6379,
-  password: '123456'
-}
+import { isLocalEnv } from './utils.js'
+import { settings } from '../settings/index.js'
 
 // TODO: production should use redis cluster
 export const pubsub = isLocalEnv()
   ? new PubSub()
   : new RedisPubSub({
-    publisher: new Redis(option),
-    subscriber: new Redis(option)
+    publisher: new Redis(settings.redis),
+    subscriber: new Redis(settings.redis)
   })

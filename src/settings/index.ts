@@ -10,7 +10,7 @@ const getSettings = (): Settings => {
     return local
   case 'test':
     return test
-  case 'production':
+  case 'prod':
     return production
   default:
     return local
