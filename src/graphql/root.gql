@@ -1,3 +1,10 @@
 type Query
 type Mutation
 type Subscription
+
+type Page {
+  size: Int!
+  number: Int!
+  totalElements: Int!
+  totalPages: Int!
+}
