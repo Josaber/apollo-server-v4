@@ -7,7 +7,7 @@ import { expressMiddleware } from '@apollo/server/express4'
 import express from 'express'
 import cors from 'cors'
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default'
-import { ApolloServerPluginCacheControlDisabled, ApolloServerPluginLandingPageDisabled } from '@apollo/server/plugin/disabled'
+import { ApolloServerPluginCacheControlDisabled, ApolloServerPluginLandingPageDisabled, ApolloServerPluginSchemaReportingDisabled, ApolloServerPluginUsageReportingDisabled } from '@apollo/server/plugin/disabled'
 import { Context } from './graphql/book/types.js'
 import { formatError, getDynamicContext, getToken } from './utils.js'
 import { isProductionEnv } from './common/utils.js'
@@ -42,12 +42,16 @@ const server = new ApolloServer<Context>({
   schema,
   formatError,
   includeStacktraceInErrorResponses: !isProductionEnv(),
+  introspection: !isProductionEnv(),
+  logger,
   plugins: [
+    ApolloServerPluginUsageReportingDisabled(),
+    ApolloServerPluginSchemaReportingDisabled(),
+    ApolloServerPluginCacheControlDisabled(),
     isProductionEnv()
       ? ApolloServerPluginLandingPageDisabled()
       // ApolloServerPluginLandingPageProductionDefault()
-      : ApolloServerPluginLandingPageLocalDefault({ embed: true }),
-    ApolloServerPluginCacheControlDisabled(),
+      : ApolloServerPluginLandingPageLocalDefault({ embed: true, footer: false }),
     ApolloServerPluginDrainHttpServer({ httpServer }),
     {
       async serverWillStart () {
