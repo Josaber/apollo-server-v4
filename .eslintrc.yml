@@ -1,0 +1,25 @@
+env:
+  node: true
+  es2020: true
+  jest: true
+extends:
+  - standard
+  - plugin:@typescript-eslint/recommended
+parserOptions:
+  sourceType: module
+  ecmaVersion: 11
+plugins:
+  - '@typescript-eslint'
+rules:
+  indent:
+    - error
+    - 2
+  linebreak-style:
+    - error
+    - unix
+  quotes:
+    - error
+    - single
+  semi:
+    - error
+    - never

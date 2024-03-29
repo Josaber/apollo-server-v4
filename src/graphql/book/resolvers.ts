@@ -1,7 +1,7 @@
-import { GraphQLError } from "graphql";
-import { PubSub } from "graphql-subscriptions";
-import { Author, Book, Context, UpdateBookRequest } from "./types";
-import { BOOK_UPDATED_TOPIC } from "../../common/constants.js";
+import { GraphQLError } from 'graphql'
+import { PubSub } from 'graphql-subscriptions'
+import { Author, Book, Context, UpdateBookRequest } from './types'
+import { BOOK_UPDATED_TOPIC } from '../../common/constants.js'
 
 const getBook = async (_: unknown, { id }: { id: string }, contextValue: Context): Promise<Book> => {
   const book = await contextValue.dataSources.bookApi.getBook(id)
@@ -45,8 +45,8 @@ const updateBookAuthor = async (_: unknown, { id, updateBookRequest }: { id: str
     bookUpdated: {
       success: true,
       book
-    },
-  });
+    }
+  })
   return {
     code: '200',
     success: true,
@@ -78,7 +78,7 @@ const resolveBookAndAuthorType = (obj: Book & Author) => {
   return null
 }
 
-const pubsub = new PubSub();
+const pubsub = new PubSub()
 // TODO: non-local env
 
 export const resolvers = {
@@ -97,7 +97,7 @@ export const resolvers = {
     books: getAuthorBooks
   },
   Book: {
-    __resolveType: resolveBookType,
+    __resolveType: resolveBookType
   },
   SearchBookResult: {
     __resolveType: resolveBookAndAuthorType

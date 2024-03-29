@@ -1,3 +1,3 @@
-import { APP_ENV } from "./constants.js";
+import { APP_ENV } from './constants.js'
 
-export const isProductionEnv = () => APP_ENV === "production"
+export const isProductionEnv = () => APP_ENV === 'production'

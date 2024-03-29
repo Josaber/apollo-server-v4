@@ -1,4 +1,4 @@
-import { Settings } from "./types";
+import { Settings } from './types'
 
 export const local: Settings = {
   env: 'local',

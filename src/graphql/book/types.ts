@@ -1,5 +1,5 @@
-import { AuthorApi } from "./AuthorApi";
-import { BookApi } from "./BookApi";
+import { AuthorApi } from './AuthorApi'
+import { BookApi } from './BookApi'
 
 export interface Context {
   token: string;

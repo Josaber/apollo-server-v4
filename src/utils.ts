@@ -1,5 +1,5 @@
-import { GraphQLFormattedError } from "graphql"
-import { unwrapResolverError } from '@apollo/server/errors';
+import { GraphQLFormattedError } from 'graphql'
+import { unwrapResolverError } from '@apollo/server/errors'
 
 export const formatError = (formattedError: GraphQLFormattedError, error: unknown): GraphQLFormattedError => {
   const unwrappedError = unwrapResolverError(error)
@@ -18,8 +18,8 @@ export const getToken = async (authorization?: string): Promise<string> => {
 
 export const getDynamicContext = async (ctx) => {
   if (ctx.connectionParams.authorization) {
-    const token = await getToken(ctx.connectionParams.authorization);
-    return { token };
+    const token = await getToken(ctx.connectionParams.authorization)
+    return { token }
   }
-  return { token: null };
-};
+  return { token: null }
+}
