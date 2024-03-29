@@ -65,8 +65,8 @@ extend type Mutation {
   updateBookAuthor(id: String!, updateBookRequest: UpdateBookRequest!): UpdateBookMutationResponse!
 }
 
-extend type BookUpdateEvent {
-  book: Book
+type BookUpdateEvent {
+  bookId: String
   success: Boolean!
 }
 
