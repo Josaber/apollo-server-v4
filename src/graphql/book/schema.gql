@@ -1,4 +1,3 @@
-export const typeDefs = `
 enum Language {
   ZH
   EN
@@ -62,16 +61,15 @@ type UpdateBookMutationResponse implements MutationResponse {
   book: Book
 }
 
-type Mutation {
+extend type Mutation {
   updateBookAuthor(id: String!, updateBookRequest: UpdateBookRequest!): UpdateBookMutationResponse!
 }
 
-type BookUpdateEvent {
+extend type BookUpdateEvent {
   book: Book
   success: Boolean!
 }
 
-type Subscription {
+extend type Subscription {
   bookUpdated: BookUpdateEvent!
 }
-`

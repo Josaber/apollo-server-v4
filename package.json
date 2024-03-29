@@ -8,14 +8,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "compile": "rm -rf dist && tsc",
-    "start": "yarn compile && node ./dist/index.js",
+    "compile": "tsc --build --clean && tsc && copyfiles -u 1 src/**/*.gql dist",
+    "start": "yarn compile && node dist/index.js",
     "api": "json-server -p 5000 api/db.json",
     "lint": "eslint src/**",
     "lint:fix": "yarn lint --fix"
   },
   "devDependencies": {
     "@types/node": "^20.11.30",
+    "copyfiles": "^2.4.1",
     "eslint": "^8.0.1",
     "json-server": "^1.0.0-alpha.23",
     "typescript": "^5.4.3",

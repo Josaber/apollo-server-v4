@@ -79,6 +79,8 @@ const resolveBookAndAuthorType = (obj: Book & Author) => {
 }
 
 const pubsub = new PubSub();
+// TODO: non-local env
+
 export const resolvers = {
   Query: {
     book: getBook,

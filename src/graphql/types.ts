@@ -1,4 +1,6 @@
+import type { IResolvers } from '@graphql-tools/utils'
+
 export type Module = {
   typeDefs: string;
-  resolvers: { [key: string]: unknown };
+  resolvers: IResolvers;
 }
