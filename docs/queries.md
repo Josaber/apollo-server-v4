@@ -97,6 +97,8 @@ query SearchBookQuery {
 
 ## Introspection
 
+- https://spec.graphql.org/October2021/#sec-Introspection
+
 ```gql
 query ($name: String!) {
   __typename
@@ -122,6 +124,29 @@ query ($name: String!) {
       name
       description
       isRepeatable
+    }
+
+    queryType {
+      name
+      kind
+      description
+      inputFields {
+        name
+        description
+        defaultValue
+        isDeprecated
+        deprecationReason
+      }
+    }
+
+    mutationType {
+      name
+      description
+    }
+
+    subscriptionType {
+      name
+      description
     }
   }
 }
