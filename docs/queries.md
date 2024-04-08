@@ -94,3 +94,35 @@ query SearchBookQuery {
   }
 }
 ```
+
+## Introspection
+
+```gql
+query ($name: String!) {
+  __typename
+
+  __type(name: $name) {
+    __typename
+
+    name
+    fields {
+      name
+      description
+      isDeprecated
+      deprecationReason
+    }
+  }
+
+  __schema {
+    types {
+      name
+      description
+    }
+    directives {
+      name
+      description
+      isRepeatable
+    }
+  }
+}
+```

@@ -1,4 +1,6 @@
 # Comments in GraphQL strings (such as this one) start with the hash (#) symbol.
 
 scalar Date
+
+"This is a JSON field"
 scalar JSON

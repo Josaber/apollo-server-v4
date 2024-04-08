@@ -2,6 +2,10 @@ type Query
 type Mutation
 type Subscription
 
+"""
+Description for Page
+Show how to define the description for introspection
+"""
 type Page {
   size: Int!
   number: Int!
